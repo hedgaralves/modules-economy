@@ -90,25 +90,34 @@ module "eks" {
 
 # 4. Cluster Autoscaler via Helm
 resource "helm_release" "cluster_autoscaler" {
-	name       = "cluster-autoscaler"
-	repository = "https://kubernetes.github.io/autoscaler"
-	chart      = "cluster-autoscaler"
-	version    = var.cluster_autoscaler_helm_version
-	namespace  = "kube-system"
+	name             = "cluster-autoscaler"
+	repository       = "https://kubernetes.github.io/autoscaler"
+	chart            = "cluster-autoscaler"
+	version          = var.cluster_autoscaler_helm_version
+	namespace        = "kube-system"
 	create_namespace = false
-	values = [
-		<<-YAML
-autoDiscovery:
-	clusterName: ${var.eks_name}
-awsRegion: ${var.aws_region}
-rbac:
-	create: true
-extraArgs:
-	skip-nodes-with-local-storage: false
-	balance-similar-node-groups: true
-YAML
-	]
-	depends_on = [module.eks]
+	depends_on       = [module.eks]
+
+	set {
+		name  = "autoDiscovery.clusterName"
+		value = var.eks_name
+	}
+	set {
+		name  = "awsRegion"
+		value = var.aws_region
+	}
+	set {
+		name  = "rbac.create"
+		value = "true"
+	}
+	set {
+		name  = "extraArgs.skip-nodes-with-local-storage"
+		value = "false"
+	}
+	set {
+		name  = "extraArgs.balance-similar-node-groups"
+		value = "true"
+	}
 }
 
 # 5. StorageClass padrão gp3
