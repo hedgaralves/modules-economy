@@ -33,7 +33,13 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform-eks-cost-optimized init
 
-      - name: Terraform Apply
+      - name: Terraform Apply (Infra AWS)
+        run: terraform -chdir=terraform-eks-cost-optimized apply -auto-approve -target=module.eks
+
+      - name: Configure kubeconfig for EKS
+        run: aws eks update-kubeconfig --region us-east-1 --name eks-lab
+
+      - name: Terraform Apply (K8s/Helm)
         run: terraform -chdir=terraform-eks-cost-optimized apply -auto-approve
 
       - name: Notificação Slack
@@ -50,12 +56,3 @@ jobs:
             Commit: ${{ github.sha }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      - name: Configure kubeconfig for EKS
-        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
-        env:
-          AWS_REGION: us-east-1 # ou sua região
-          EKS_CLUSTER_NAME: eks-lab # ou o nome do seu cluster
-
-      - name: Terraform Apply (K8s/Helm)
-        run: terraform apply -auto-approve
