@@ -25,7 +25,7 @@
 ```hcl
 module "eks_cost_optimized" {
 	source = "git::https://github.com/sua-org/terraform-eks-cost-optimized.git?ref=v1.0.0"
-	eks_name = "eks-dev"
+		eks_name = "eks-lab"
 	aws_region = "us-east-1"
 	# ...outras variáveis...
 	tags = {

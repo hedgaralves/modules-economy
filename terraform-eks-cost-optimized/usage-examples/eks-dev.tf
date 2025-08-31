@@ -4,10 +4,10 @@ module "eks_cost_optimized" {
   source = "../"
 
   aws_region = "us-east-1"
-  eks_name   = "eks-dev"
+  eks_name   = "eks-lab"
   eks_version = "1.29"
 
-  vpc_name = "eks-vpc-dev"
+  vpc_name = "eks-vpc-lab"
   vpc_cidr = "10.10.0.0/16"
   vpc_azs  = ["us-east-1a", "us-east-1b", "us-east-1c"]
   vpc_private_subnets = ["10.10.1.0/24", "10.10.2.0/24", "10.10.3.0/24"]
@@ -27,7 +27,7 @@ module "eks_cost_optimized" {
 
   tags = {
     Project     = "economy-platform"
-    Environment = "dev"
+    Environment = "lab"
     Owner       = "squad-devops"
     CostCenter  = "1234"
   }
