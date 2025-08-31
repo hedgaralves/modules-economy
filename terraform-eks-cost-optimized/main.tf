@@ -1,3 +1,5 @@
+
+# Forçando novo commit para disparar pipeline (31/08/2025)
 # -----------------------------
 # Módulo EKS Otimizado para Custos
 # -----------------------------
