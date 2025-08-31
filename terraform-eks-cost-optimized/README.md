@@ -17,7 +17,8 @@
 
 ---
 
-## Como Usar
+
+## Como Usar e Acionar a Pipeline
 
 ### 1. Adicione o módulo ao seu projeto
 
@@ -44,21 +45,25 @@ Edite `backend.tf` com o nome do bucket S3 e tabela DynamoDB criados na AWS.
 
 ```sh
 terraform init
-terraform plan -var-file=../examples/eks-dev.tfvars
-terraform apply -var-file=../examples/eks-dev.tfvars
+terraform plan -var-file=usage-examples/eks-dev.tf
+terraform apply -var-file=usage-examples/eks-dev.tf
 ```
 
-### 4. Ou use via GitHub Actions
+### 4. Acione a pipeline do GitHub Actions
 
-Os workflows já estão prontos em `.github/workflows/`:
-- `terraform-plan.yml`: Executa plan em PR e comenta no PR
-- `terraform-apply.yml`: Executa apply no merge para main, com aprovação manual
-- `terraform-destroy.yml`: Permite destruir ambientes manualmente
+- Faça um commit e push na branch `main`:
+	```sh
+	git add .
+	git commit -m "chore: trigger pipeline"
+	git push origin main
+	```
+- O workflow será executado automaticamente em **Actions**.
+- Acompanhe logs e alertas no Slack (se configurado).
 
 #### Configure os secrets no GitHub:
 - `AWS_ROLE_OIDC`: ARN do role IAM com trust OIDC
 - `SLACK_WEBHOOK_URL`: Webhook do Slack
-- `APPROVERS`: Usuários autorizados para aprovação manual
+- `APPROVERS`: Usuários autorizados para aprovação manual (se necessário)
 
 #### Exemplo de Trust Policy para OIDC (IAM Role na AWS):
 ```json
@@ -70,12 +75,19 @@ Os workflows já estão prontos em `.github/workflows/`:
 	"Action": "sts:AssumeRoleWithWebIdentity",
 	"Condition": {
 		"StringEquals": {
-			"token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+			"token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+		},
+		"StringLike": {
 			"token.actions.githubusercontent.com:sub": "repo:<SEU_ORG>/<SEU_REPO>:ref:refs/heads/main"
 		}
 	}
 }
 ```
+
+#### Dicas e Troubleshooting
+- Se o workflow não rodar, faça um novo commit e push.
+- Se aparecer erro de OIDC, revise a trust policy e o secret no GitHub.
+- Se precisar acionar a pipeline manualmente, altere qualquer arquivo e faça push.
 
 ---
 
