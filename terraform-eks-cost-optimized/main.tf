@@ -167,3 +167,20 @@ resource "aws_iam_role" "github_actions" {
 	})
 }
 
+# Espera pelo endpoint do EKS
+resource "null_resource" "wait_for_eks" {
+	count = var.create_eks ? 1 : 0
+
+	provisioner "local-exec" {
+		command = <<EOT
+			for i in {1..30}; do
+				aws eks describe-cluster --region ${var.aws_region} --name ${var.eks_name} --query "cluster.status" | grep -q '\"ACTIVE\"' && break
+				echo "Aguardando EKS ficar ACTIVE..."
+				sleep 20
+			done
+		EOT
+
+		interpreter = ["bash", "-c"]
+	}
+}
+
