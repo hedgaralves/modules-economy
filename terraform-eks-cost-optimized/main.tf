@@ -17,15 +17,15 @@ module "vpc" {
 }
 
 # 2. IAM Roles para EKS e Node Groups
-module "eks_iam" {
-	source  = "terraform-aws-modules/iam/aws//modules/eks"
-	version = "5.34.0"
-}
+# module "eks_iam" {
+#   source  = "terraform-aws-modules/iam/aws//modules/eks"
+#   version = "5.35.0"
+# }
 
 # 3. Cluster EKS
 module "eks" {
 	source          = "terraform-aws-modules/eks/aws"
-	version         = "20.8.4"
+	version         = "20.13.0"
 	cluster_name    = var.eks_name
 	cluster_version = var.eks_version
 	vpc_id          = module.vpc.vpc_id
