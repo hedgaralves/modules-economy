@@ -52,6 +52,9 @@ jobs:
       - name: Configure kubeconfig for EKS
         run: aws eks update-kubeconfig --region us-east-1 --name eks-lab
 
+      - name: Aguarda propagação do kubeconfig
+        run: sleep 30
+
       - name: Terraform Apply (K8s/Helm)
         run: terraform -chdir=terraform-eks-cost-optimized apply -auto-approve
 
