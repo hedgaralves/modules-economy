@@ -76,7 +76,9 @@ jobs:
         run: cat ~/.kube/config
 
       - name: Terraform Apply (K8s/Helm)
-        run: terraform -chdir=terraform-eks-cost-optimized apply -auto-approve
+        run: |
+          export KUBECONFIG=$HOME/.kube/config
+          terraform -chdir=terraform-eks-cost-optimized apply -auto-approve
 
       - name: Notificação Slack
         if: always()
