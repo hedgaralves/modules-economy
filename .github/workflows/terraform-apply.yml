@@ -52,3 +52,4 @@ jobs:
             Commit: ${{ github.sha }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+ 
