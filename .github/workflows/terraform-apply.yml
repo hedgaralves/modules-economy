@@ -36,6 +36,19 @@ jobs:
       - name: Terraform Apply (Infra AWS)
         run: terraform -chdir=terraform-eks-cost-optimized apply -auto-approve -target=module.eks
 
+
+      - name: Espera pelo endpoint do EKS
+        run: |
+          for i in {1..30}; do
+            STATUS=$(aws eks describe-cluster --region us-east-1 --name eks-lab --query "cluster.status" --output text)
+            if [ "$STATUS" = "ACTIVE" ]; then
+              echo "EKS está ACTIVE!"
+              break
+            fi
+            echo "Aguardando EKS ficar ACTIVE..."
+            sleep 20
+          done
+
       - name: Configure kubeconfig for EKS
         run: aws eks update-kubeconfig --region us-east-1 --name eks-lab
 
