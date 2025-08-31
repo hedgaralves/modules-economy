@@ -79,7 +79,16 @@ Cluster Amazon EKS pronto para produção, com práticas modernas de FinOps, aut
 
 ---
 
-## 🚦 Como Usar
+
+## 🚦 Como Usar e Automação
+
+### ⏰ Automação Inteligente (GitHub Actions)
+
+- O cluster EKS é **criado automaticamente todos os dias às 07:00 UTC**.
+- Todos os recursos são **destruídos automaticamente às 19:00 UTC** para economia de custos.
+- Você pode acionar manualmente a criação ou destruição a qualquer momento pelo GitHub Actions.
+
+> **Dica:** Ajuste o horário no workflow (`.github/workflows/terraform-apply.yml` e `terraform-destroy.yml`) conforme seu fuso horário, se necessário.
 
 ### 1️⃣ Adicione o módulo ao seu projeto
 ```hcl
