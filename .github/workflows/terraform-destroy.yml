@@ -3,7 +3,11 @@ name: Terraform Destroy
 description: 'Destrói ambientes não produtivos para economia de custos.'
 
 
+
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
