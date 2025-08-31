@@ -114,3 +114,9 @@ variable "tags" {
 	type        = map(string)
 	default     = {}
 }
+
+variable "create_eks" {
+  description = "Se true, cria o cluster EKS. Usado para controle de execução em pipelines."
+  type        = bool
+  default     = true
+}
