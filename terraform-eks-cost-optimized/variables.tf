@@ -1,4 +1,3 @@
-
 ###############################
 # Variáveis do Módulo EKS FinOps
 ###############################
@@ -12,6 +11,7 @@ variable "aws_region" {
 variable "eks_name" {
 	description = "Nome do cluster EKS."
 	type        = string
+	default     = "eks-lab"
 }
 
 variable "eks_version" {
