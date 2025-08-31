@@ -97,16 +97,16 @@ resource "helm_release" "cluster_autoscaler" {
 	namespace  = "kube-system"
 	create_namespace = false
 	values = [
-		<<-EOT
-		autoDiscovery:
-			clusterName: ${var.eks_name}
-		awsRegion: ${var.aws_region}
-		rbac:
-			create: true
-		extraArgs:
-			skip-nodes-with-local-storage: false
-			balance-similar-node-groups: true
-		EOT
+		<<-YAML
+autoDiscovery:
+	clusterName: ${var.eks_name}
+awsRegion: ${var.aws_region}
+rbac:
+	create: true
+extraArgs:
+	skip-nodes-with-local-storage: false
+	balance-similar-node-groups: true
+YAML
 	]
 	depends_on = [module.eks]
 }
