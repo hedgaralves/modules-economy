@@ -34,7 +34,8 @@ module "eks" {
 	# Se usar subnets dedicadas para control plane, adicione:
 	# control_plane_subnet_ids = [ ... ]
 
-	cluster_endpoint_public_access        = false
+	cluster_endpoint_public_access        = true
+	cluster_endpoint_public_access_cidrs  = ["0.0.0.0/0"]
 
 	cluster_addons = {
 		coredns = {
