@@ -34,7 +34,8 @@ module "eks" {
 	# Se usar subnets dedicadas para control plane, adicione:
 	# control_plane_subnet_ids = [ ... ]
 
-	cluster_endpoint_public_access = true
+	cluster_endpoint_public_access        = false
+	cluster_endpoint_public_access_cidrs  = ["10.0.0.0/16"] 
 
 	cluster_addons = {
 		coredns = {
@@ -187,4 +188,6 @@ resource "null_resource" "wait_for_eks" {
 provider "kubernetes" {
   config_path = "~/.kube/config"
 }
+
+
 

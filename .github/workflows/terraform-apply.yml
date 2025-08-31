@@ -55,6 +55,9 @@ jobs:
       - name: Aguarda propagação do kubeconfig
         run: sleep 30
 
+      - name: Debug kubeconfig
+        run: cat ~/.kube/config
+
       - name: Terraform Apply (K8s/Helm)
         run: terraform -chdir=terraform-eks-cost-optimized apply -auto-approve
 
