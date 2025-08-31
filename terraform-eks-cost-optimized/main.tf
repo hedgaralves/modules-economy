@@ -98,26 +98,28 @@ resource "helm_release" "cluster_autoscaler" {
 	create_namespace = false
 	depends_on       = [module.eks]
 
-	set {
-		name  = "autoDiscovery.clusterName"
-		value = var.eks_name
-	}
-	set {
-		name  = "awsRegion"
-		value = var.aws_region
-	}
-	set {
-		name  = "rbac.create"
-		value = "true"
-	}
-	set {
-		name  = "extraArgs.skip-nodes-with-local-storage"
-		value = "false"
-	}
-	set {
-		name  = "extraArgs.balance-similar-node-groups"
-		value = "true"
-	}
+	set = [
+		{
+			name  = "autoDiscovery.clusterName"
+			value = var.eks_name
+		},
+		{
+			name  = "awsRegion"
+			value = var.aws_region
+		},
+		{
+			name  = "rbac.create"
+			value = "true"
+		},
+		{
+			name  = "extraArgs.skip-nodes-with-local-storage"
+			value = "false"
+		},
+		{
+			name  = "extraArgs.balance-similar-node-groups"
+			value = "true"
+		}
+	]
 }
 
 # 5. StorageClass padrão gp3
