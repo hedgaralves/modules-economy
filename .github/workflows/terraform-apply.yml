@@ -19,6 +19,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Trivy IaC Scan
+        uses: aquasecurity/trivy-action@0.33.0
+        with:
+          scan-type: config
+          scan-ref: ./terraform-eks-cost-optimized
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+
+      - name: Upload resultado do Trivy
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
