@@ -48,52 +48,40 @@ module "eks" {
 		}
 	}
 
-	eks_managed_node_group_defaults = {
-		instance_types = ["t3.large", "t3a.large", "m5.large", "m6i.large"]
-	}
+		eks_managed_node_group_defaults = {
+			instance_types = ["t3.large", "t3a.large", "m5.large", "m6i.large"] # Removido t4g.medium (ARM)
+		}
 
-	eks_managed_node_groups = {
-		spot = {
-			min_size     = var.spot_min_size
-			max_size     = var.spot_max_size
-			desired_size = var.spot_desired_size
-			instance_types = var.spot_instance_types
-			capacity_type  = "SPOT"
-			labels = {
-				lifecycle = "Ec2Spot"
+		eks_managed_node_groups = {
+			spot = {
+				min_size     = var.spot_min_size
+				max_size     = var.spot_max_size
+				desired_size = var.spot_desired_size
+				# Remova t4g.medium de var.spot_instance_types se estiver usando
+				instance_types = [for t in var.spot_instance_types : t if !contains(["t4g.medium"], t)]
+				capacity_type  = "SPOT"
+				labels = {
+					lifecycle = "Ec2Spot"
+				}
+				tags = merge(local.tags, { "k8s.io/lifecycle" = "Ec2Spot" })
 			}
-			tags = merge(local.tags, { "k8s.io/lifecycle" = "Ec2Spot" })
-		}
-		on_demand = {
-			min_size     = var.ondemand_min_size
-			max_size     = var.ondemand_max_size
-			desired_size = var.ondemand_desired_size
-			instance_types = var.ondemand_instance_types
-			capacity_type  = "ON_DEMAND"
-			labels = {
-				lifecycle = "OnDemand"
+			on_demand = {
+				min_size     = var.ondemand_min_size
+				max_size     = var.ondemand_max_size
+				desired_size = var.ondemand_desired_size
+				# Remova t4g.medium de var.ondemand_instance_types se estiver usando
+				instance_types = [for t in var.ondemand_instance_types : t if !contains(["t4g.medium"], t)]
+				capacity_type  = "ON_DEMAND"
+				labels = {
+					lifecycle = "OnDemand"
+				}
+				tags = merge(local.tags, { "k8s.io/lifecycle" = "OnDemand" })
 			}
-			tags = merge(local.tags, { "k8s.io/lifecycle" = "OnDemand" })
 		}
-	}
 
 	enable_cluster_creator_admin_permissions = true
 
-	access_entries = {
-		example = {
-			kubernetes_groups = []
-			principal_arn     = "arn:aws:iam::123456789012:role/something"
-			policy_associations = {
-				example = {
-					policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
-					access_scope = {
-						namespaces = ["default"]
-						type       = "namespace"
-					}
-				}
-			}
-		}
-	}
+
 
 	cluster_tags = local.tags
 	tags         = local.tags
@@ -125,6 +113,7 @@ resource "helm_release" "cluster_autoscaler" {
 
 # 5. StorageClass padrão gp3
 resource "kubernetes_storage_class" "gp3" {
+	depends_on = [module.eks]
 	metadata {
 		name = "gp3"
 		annotations = {
