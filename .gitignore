@@ -1,0 +1,18 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+crash.log
+.terraform/
+.terraform.lock.hcl
+
+# IDEs e SO
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Arquivos sensíveis
+*.tfvars
+*.tfvars.json
+
+# Outros
+*.log

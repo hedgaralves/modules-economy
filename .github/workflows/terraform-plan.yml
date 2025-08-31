@@ -1,0 +1,49 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - 'terraform-eks-cost-optimized/**'
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  terraform-plan:
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_OIDC }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform-eks-cost-optimized init
+
+      - name: Terraform Validate
+        run: terraform -chdir=terraform-eks-cost-optimized validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform -chdir=terraform-eks-cost-optimized plan -no-color
+
+      - name: Comentar resultado no PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            ### Terraform Plan
+            ```
+            ${{ steps.plan.outputs.stdout }}
+            ```

@@ -1,0 +1,49 @@
+name: Terraform Destroy
+
+description: 'Destrói ambientes não produtivos para economia de custos.'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente a ser destruído (ex: dev, staging)'
+        required: true
+        default: 'dev'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-destroy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_OIDC }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform-eks-cost-optimized init
+
+      - name: Terraform Destroy
+        run: terraform -chdir=terraform-eks-cost-optimized destroy -auto-approve
+
+      - name: Notificação Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
