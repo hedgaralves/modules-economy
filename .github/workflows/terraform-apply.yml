@@ -1,11 +1,13 @@
 name: Terraform Apply
 
+
 on:
   push:
     branches:
       - main
     paths:
       - 'terraform-eks-cost-optimized/**'
+
 
 permissions:
   id-token: write
@@ -33,15 +35,7 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform-eks-cost-optimized init
 
-      - name: Terraform Apply (Aprovação Manual)
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: ${{ secrets.APPROVERS }}
-          instructions: 'Aprovar para aplicar mudanças em produção.'
-
       - name: Terraform Apply
-        if: ${{ steps.manual-approval.outputs.approved == 'true' }}
         run: terraform -chdir=terraform-eks-cost-optimized apply -auto-approve
 
       - name: Notificação Slack
@@ -50,5 +44,11 @@ jobs:
         with:
           status: ${{ job.status }}
           fields: repo,message,commit,author
+          text: |
+            :rocket: *Status do Deploy Terraform*
+            O workflow terminou com status: *${{ job.status }}*
+            Repositório: ${{ github.repository }}
+            Autor: ${{ github.actor }}
+            Commit: ${{ github.sha }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

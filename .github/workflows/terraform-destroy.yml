@@ -2,6 +2,7 @@ name: Terraform Destroy
 
 description: 'Destrói ambientes não produtivos para economia de custos.'
 
+
 on:
   workflow_dispatch:
     inputs:
@@ -9,6 +10,14 @@ on:
         description: 'Ambiente a ser destruído (ex: dev, staging)'
         required: true
         default: 'dev'
+  workflow_call:
+    secrets:
+      AWS_ROLE_OIDC:
+        required: true
+      SLACK_WEBHOOK_URL:
+        required: false
+      APPROVERS:
+        required: false
 
 permissions:
   id-token: write
@@ -45,5 +54,11 @@ jobs:
         with:
           status: ${{ job.status }}
           fields: repo,message,commit,author
+          text: |
+            :rocket: *Status do Destroy Terraform*
+            O workflow terminou com status: *${{ job.status }}*
+            Repositório: ${{ github.repository }}
+            Autor: ${{ github.actor }}
+            Commit: ${{ github.sha }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
