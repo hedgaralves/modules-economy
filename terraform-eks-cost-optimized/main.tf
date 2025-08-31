@@ -167,11 +167,3 @@ resource "aws_iam_role" "github_actions" {
 	})
 }
 
-locals {
-  tags = {
-    "Project"     = contains(keys(var.tags), "Project")     ? var.tags["Project"]     : "eks-cost-optimized"
-    "Environment" = contains(keys(var.tags), "Environment") ? var.tags["Environment"] : "dev"
-    "Owner"       = contains(keys(var.tags), "Owner")       ? var.tags["Owner"]       : "team"
-    "CostCenter"  = contains(keys(var.tags), "CostCenter")  ? var.tags["CostCenter"]  : "0000"
-  }
-}
