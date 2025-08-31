@@ -57,8 +57,8 @@ module "eks" {
 				min_size     = var.spot_min_size
 				max_size     = var.spot_max_size
 				desired_size = var.spot_desired_size
-				# Remova t4g.medium de var.spot_instance_types se estiver usando
-				instance_types = [for t in var.spot_instance_types : t if !contains(["t4g.medium"], t)]
+				# Filtra tipos ARM (terminados com 'g.') para garantir apenas x86_64
+				instance_types = [for t in var.spot_instance_types : t if !can(regex("g\\.", t))]
 				capacity_type  = "SPOT"
 				labels = {
 					lifecycle = "Ec2Spot"
@@ -69,8 +69,8 @@ module "eks" {
 				min_size     = var.ondemand_min_size
 				max_size     = var.ondemand_max_size
 				desired_size = var.ondemand_desired_size
-				# Remova t4g.medium de var.ondemand_instance_types se estiver usando
-				instance_types = [for t in var.ondemand_instance_types : t if !contains(["t4g.medium"], t)]
+				# Filtra tipos ARM (terminados com 'g.') para garantir apenas x86_64
+				instance_types = [for t in var.ondemand_instance_types : t if !can(regex("g\\.", t))]
 				capacity_type  = "ON_DEMAND"
 				labels = {
 					lifecycle = "OnDemand"
