@@ -24,22 +24,39 @@ module "vpc" {
 
 # 3. Cluster EKS
 module "eks" {
-	source          = "terraform-aws-modules/eks/aws"
-	version         = "20.13.0"
+	source  = "terraform-aws-modules/eks/aws"
+	version = "~> 20.0"
+
 	cluster_name    = var.eks_name
 	cluster_version = var.eks_version
 	vpc_id          = module.vpc.vpc_id
 	subnet_ids      = module.vpc.private_subnets
-	enable_irsa     = true
-	cluster_tags    = local.tags
-	tags            = local.tags
+	# Se usar subnets dedicadas para control plane, adicione:
+	# control_plane_subnet_ids = [ ... ]
 
-	# Node Groups Otimizados para Custos
+	cluster_endpoint_public_access = true
+
+	cluster_addons = {
+		coredns = {
+			most_recent = true
+		}
+		kube-proxy = {
+			most_recent = true
+		}
+		vpc-cni = {
+			most_recent = true
+		}
+	}
+
+	eks_managed_node_group_defaults = {
+		instance_types = ["t3.large", "t3a.large", "m5.large", "m6i.large"]
+	}
+
 	eks_managed_node_groups = {
 		spot = {
-			desired_size = var.spot_desired_size
-			max_size     = var.spot_max_size
 			min_size     = var.spot_min_size
+			max_size     = var.spot_max_size
+			desired_size = var.spot_desired_size
 			instance_types = var.spot_instance_types
 			capacity_type  = "SPOT"
 			labels = {
@@ -48,9 +65,9 @@ module "eks" {
 			tags = merge(local.tags, { "k8s.io/lifecycle" = "Ec2Spot" })
 		}
 		on_demand = {
-			desired_size = var.ondemand_desired_size
-			max_size     = var.ondemand_max_size
 			min_size     = var.ondemand_min_size
+			max_size     = var.ondemand_max_size
+			desired_size = var.ondemand_desired_size
 			instance_types = var.ondemand_instance_types
 			capacity_type  = "ON_DEMAND"
 			labels = {
@@ -60,7 +77,26 @@ module "eks" {
 		}
 	}
 
-	# Permitir customização de AMI, disk size, etc.
+	enable_cluster_creator_admin_permissions = true
+
+	access_entries = {
+		example = {
+			kubernetes_groups = []
+			principal_arn     = "arn:aws:iam::123456789012:role/something"
+			policy_associations = {
+				example = {
+					policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
+					access_scope = {
+						namespaces = ["default"]
+						type       = "namespace"
+					}
+				}
+			}
+		}
+	}
+
+	cluster_tags = local.tags
+	tags         = local.tags
 	node_security_group_tags = local.tags
 }
 
@@ -129,4 +165,13 @@ resource "aws_iam_role" "github_actions" {
 			}
 		]
 	})
+}
+
+locals {
+  tags = {
+    "Project"     = contains(keys(var.tags), "Project")     ? var.tags["Project"]     : "eks-cost-optimized"
+    "Environment" = contains(keys(var.tags), "Environment") ? var.tags["Environment"] : "dev"
+    "Owner"       = contains(keys(var.tags), "Owner")       ? var.tags["Owner"]       : "team"
+    "CostCenter"  = contains(keys(var.tags), "CostCenter")  ? var.tags["CostCenter"]  : "0000"
+  }
 }
